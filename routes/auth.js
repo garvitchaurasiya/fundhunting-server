@@ -12,6 +12,7 @@ const fetchuser = require('../middleware/fetchuser');
 
 // Route 1: Create a new account for a user using POST "/api/auth/createaccount". No login required.
 router.post('/createaccount', async (req, res)=>{
+    response.setHeader({'Access-Control-Allow-Origin': '*'}) 
     
     let success=false;
 
