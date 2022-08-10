@@ -49,7 +49,7 @@ router.post('/createaccount', async (req, res)=>{
 //Router 2: Authenticate a user using POST "/api/auth/login". No login required.
 
 router.post('/login', async (req, res)=>{
-    res.setHeader({'Access-Control-Allow-Origin': '*'}) 
+    res.setHeader('Access-Control-Allow-Origin', '*') 
     let success=false;
 
     try {
