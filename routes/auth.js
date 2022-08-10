@@ -6,7 +6,7 @@ const router = express.Router();
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = ".envFile/configFile";
+const JWT_SECRET = process.env.SECRET;
 
 const fetchuser = require('../middleware/fetchuser');
 
