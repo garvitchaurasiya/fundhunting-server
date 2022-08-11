@@ -13,7 +13,7 @@ const fetchuser = require('../middleware/fetchuser');
 
 // Route 1: Create a new account for a user using POST "/api/auth/createaccount". No login required.
 router.post('/createaccount', async (req, res)=>{
-    response.setHeader('Access-Control-Allow-Origin', '*') 
+    res.setHeader('Access-Control-Allow-Origin', '*') 
     
     let success=false;
 
@@ -85,6 +85,7 @@ router.post('/login', async (req, res)=>{
 })
 
 router.post('/getuser',  async(req, res)=>{
+    res.setHeader('Access-Control-Allow-Origin', '*') 
 
     try {
         // const email = req.user.email;
@@ -102,6 +103,8 @@ router.post('/getuser',  async(req, res)=>{
 })
 
 router.post('/placedbids', fetchuser, async(req, res)=>{
+    res.setHeader('Access-Control-Allow-Origin', '*') 
+
     try{
         const user = await User.findOneAndUpdate({email: req.user.email},
                 {$push: {
@@ -117,6 +120,8 @@ router.post('/placedbids', fetchuser, async(req, res)=>{
 })
 
 router.post('/getplacedbids', fetchuser, async(req, res)=>{
+    res.setHeader('Access-Control-Allow-Origin', '*') 
+
     try{
         const user = await User.findOne({email: req.user.email});
         res.json({placedBids: user.placedBids});
@@ -129,6 +134,7 @@ router.post('/getplacedbids', fetchuser, async(req, res)=>{
 })
 
 router.post('/authoriseUser', fetchuser, async(req, res)=>{
+    res.setHeader('Access-Control-Allow-Origin', '*') 
 
     try {
         const user = await User.findOne({email: req.user.email})
@@ -143,6 +149,7 @@ router.post('/authoriseUser', fetchuser, async(req, res)=>{
 })
 
 router.get('/allusers', async(req, res)=>{
+    res.setHeader('Access-Control-Allow-Origin', '*') 
 
     try {
         const users = await User.find()
