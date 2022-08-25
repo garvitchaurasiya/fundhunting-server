@@ -7,64 +7,34 @@ const fetchuser = require('../middleware/fetchuser');
 
 // Route 1: 
 
-
-//
-const crypto = require('crypto');
-const mongoose = require('mongoose');
-// const multer = require('multer');
-const { GridFsStorage } = require('multer-gridfs-storage');
-const Grid = require('gridfs-stream');
-const path = require("path");
-//
-
-
-// Route 1: 
-
-
-//
-const mongoURI = "mongodb+srv://garvit:20020725@cluster0.nhpd38n.mongodb.net/?retryWrites=true&w=majority";
-
-// Create Mongo connection
-const conn = mongoose.createConnection(mongoURI);
-
-// Init gfs
-let gfs, gridfsBucket;
-conn.once('open', () => {
-    gridfsBucket = new mongoose.mongo.GridFSBucket(conn.db, {
-        bucketName: 'uploads'
-    });
-
-    gfs = Grid(conn.db, mongoose.mongo);
-    gfs.collection('uploads');
+var storage = multer.diskStorage({
+    destination: function(req, file, cb){
+        cb(null, './public/uploads')
+    },
+    filename: function(req, file, cb){
+        cb(null, `${Date.now()}_${file.originalname}` )
+    },
+    fileFilter: (req, file, cb) => {
+        const extention = path.extname(file.originalname);
+        if(extention !== ".mp4"){
+            return cb(res.status(400).end('Only mp4 file is allowed'), false);
+        }
+    }
 })
 
-// Create storage engine
+var upload = multer({ storage });
 
-const storage = new GridFsStorage({
-    url: mongoURI,
-    file: (req, file) => {
-        return new Promise((resolve, reject) => {
-            crypto.randomBytes(16, (err, buf) => {
-                if (err) {
-                    return reject(err);
-                }
-                const filename = buf.toString('hex') + path.extname(file.originalname);
-                const fileInfo = {
-                    filename: filename,
-                    bucketName: 'uploads'
-                };
-                resolve(fileInfo);
-            });
-        });
-    }
-});
-const upload = multer({ storage });
+router.post('/upload', upload.single('file') ,async (req, res)=>{
+    // upload(req, res, err => {
+    //     if(err){
+    //         console.log(err);
+    //         return res.json({a: false, err});
+    //     }
+    //     return res.json({success: true, filePath: res.req.file.path, fileName: req.req.file.filename})
+    // })
+    res.setHeader('Access-Control-Allow-Origin', '*') 
 
-router.post('/upload', upload.single('file'), async (req, res) => {
-
-    res.setHeader('Access-Control-Allow-Origin', '*')
-
-    await User.updateOne({ username: req.body.username }, { $push: { "posts": req.file.filename } });
+    await User.updateOne({username: req.body.username}, { $push: { "posts": req.file.filename } } );
 
     await Video.create({
         filename: req.file.filename,
@@ -74,56 +44,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     })
 
     console.log(req.file);
-    res.json({ success: true, file: req.file });
-})
-//
-
-
-router.get('/load/:filename', (req, res) => {
-
-    gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
-        if (!file || file.length === 0) {
-            return res.status(404).json({
-                err: 'No file exists'
-            })
-        }
-
-        const range = req.headers.range;
-        if (!range) {
-            res.status(400).send("Requires Range header");
-        }
-
-        const videoSize = file.length;
-        const start = Number(range.replace(/\D/g, ""));
-        const end = videoSize - 1;
-
-        // const CHUCK_SIZE = 10**7;
-        // const videoSize = file.length;
-        // const start = Number(range.replace(/\D/g, ""));
-        // const end = Math.min(start + CHUCK_SIZE, videoSize - 1);
-        const contentLength = end - start;
-
-        console.log(start, end, contentLength, `bytes ${start}-${end}/${videoSize}`);
-
-        const headers = {
-            "Content-Range": `bytes ${start}-${end}/${videoSize}`,
-            "Accept-Ranges": "bytes",
-            "Content-Length": contentLength,
-            "Content-Type": "video/mp4"
-        }
-
-        if (contentLength == 0) {
-            return res.status(200).send("Done");
-        }
-        res.writeHead(206, headers);
-
-        const downloadStream = gridfsBucket.openDownloadStreamByName(file.filename, {
-            start: start,
-            end: end
-        })
-        downloadStream.pipe(res);
-
-    })
+    res.json({success:true, file: req.file});
 })
 
 router.post('/like', fetchuser, async (req, res)=>{
