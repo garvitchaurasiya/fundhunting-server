@@ -79,49 +79,56 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 
 router.get('/load/:filename', (req, res) => {
 
-    gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
-        if (!file || file.length === 0) {
-            return res.status(404).json({
-                err: 'No file exists'
+    try {
+        gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
+            if (!file || file.length === 0) {
+                return res.status(404).json({
+                    err: 'No file exists'
+                })
+            }
+    
+            const range = req.headers.range;
+            if (!range) {
+                res.status(400).send("Requires Range header");
+            }
+    
+            const videoSize = file.length;
+            const start = Number(range.replace(/\D/g, ""));
+            const end = videoSize - 1;
+    
+            // const CHUCK_SIZE = 10**7;
+            // const videoSize = file.length;
+            // const start = Number(range.replace(/\D/g, ""));
+            // const end = Math.min(start + CHUCK_SIZE, videoSize - 1);
+            const contentLength = end - start;
+    
+            console.log(start, end, contentLength, `bytes ${start}-${end}/${videoSize}`);
+    
+            const headers = {
+                "Content-Range": `bytes ${start}-${end}/${videoSize}`,
+                "Accept-Ranges": "bytes",
+                "Content-Length": contentLength,
+                "Content-Type": "video/mp4"
+            }
+    
+            if (contentLength == 0) {
+                return res.status(200).send("Done");
+            }
+            res.writeHead(206, headers);
+    
+            const downloadStream = gridfsBucket.openDownloadStreamByName(file.filename, {
+                start: start,
+                end: end
             })
-        }
-
-        const range = req.headers.range;
-        if (!range) {
-            res.status(400).send("Requires Range header");
-        }
-
-        const videoSize = file.length;
-        const start = Number(range.replace(/\D/g, ""));
-        const end = videoSize - 1;
-
-        // const CHUCK_SIZE = 10**7;
-        // const videoSize = file.length;
-        // const start = Number(range.replace(/\D/g, ""));
-        // const end = Math.min(start + CHUCK_SIZE, videoSize - 1);
-        const contentLength = end - start;
-
-        console.log(start, end, contentLength, `bytes ${start}-${end}/${videoSize}`);
-
-        const headers = {
-            "Content-Range": `bytes ${start}-${end}/${videoSize}`,
-            "Accept-Ranges": "bytes",
-            "Content-Length": contentLength,
-            "Content-Type": "video/mp4"
-        }
-
-        if (contentLength == 0) {
-            return res.status(200).send("Done");
-        }
-        res.writeHead(206, headers);
-
-        const downloadStream = gridfsBucket.openDownloadStreamByName(file.filename, {
-            start: start,
-            end: end
+            downloadStream.pipe(res);
+    
         })
-        downloadStream.pipe(res);
+    } catch (error) {
+        console.log(error.message);
+        return res.json(500).send(error.message);
+    }
 
-    })
+    
 })
 
 
