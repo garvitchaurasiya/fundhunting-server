@@ -78,7 +78,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 
 
 router.get('/load/:filename', (req, res) => {
-
+    res.setHeader('Access-Control-Allow-Origin', '*') 
     try {
         gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
             if (!file || file.length === 0) {
@@ -246,8 +246,8 @@ router.post('/getlikes', async (req, res) => {
 })
 
 router.get('/getvideos', async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*')
     try {
-        res.setHeader('Access-Control-Allow-Origin', '*')
 
         let videos = await Video.find();
         res.json(videos);
