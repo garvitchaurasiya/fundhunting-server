@@ -10,6 +10,15 @@ const upload = multer({});
 router.post('/upload', upload.single('file'), async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*')
     try {
+        const Filename = `${Date.now()}-${req.file.originalname}`;
+
+        await User.updateOne({ username: req.body.username }, { $push: { "posts": Filename} });
+        await Video.create({
+            filename: Filename,
+            author: req.body.username,
+            amount: req.body.amount,
+            equity: req.body.equity
+        })
         const client = new S3Client({
             credentials: {
                 accessKeyId: process.env.ACCESS_KEY,
@@ -17,7 +26,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
             },
             region: 'ap-south-1'
         });
-        const Filename = `${Date.now()}-${req.file.originalname}`;
+        
         const command = new PutObjectCommand({
             Bucket: 'fundhunting-s3-bucket',
             Key: Filename,
