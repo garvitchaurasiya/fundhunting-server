@@ -8,6 +8,7 @@ const { PutObjectCommand, S3Client } = require("@aws-sdk/client-s3");
 
 const upload = multer({});
 router.post('/upload', upload.single('file'), async (req, res) => {
+    res.setHeader('Access-Control-Allow-Credentials', true)
     res.setHeader('Access-Control-Allow-Origin', '*')
     try {
         const Filename = `${Date.now()}-${req.file.originalname}`;
