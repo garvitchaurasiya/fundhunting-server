@@ -6,8 +6,11 @@ var cors = require('cors')
 
 const app = express()
 const port = process.env.PORT || 5000
+const bodyParser = require('body-parser');
 
 connectToMongo();
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(cors())
 
 app.use(express.json());
