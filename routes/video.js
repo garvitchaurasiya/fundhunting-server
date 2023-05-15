@@ -8,8 +8,8 @@ const { PutObjectCommand, S3Client } = require("@aws-sdk/client-s3");
 
 const upload = multer({});
 router.post('/upload', upload.single('file'), async (req, res) => {
-    res.setHeader('Access-Control-Allow-Credentials', true)
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    // res.setHeader('Access-Control-Allow-Credentials', true)
+    //res.setHeader('Access-Control-Allow-Origin', '*')
     try {
         const Filename = `${Date.now()}-${req.file.originalname}`;
         // const client = new S3Client({
@@ -35,8 +35,8 @@ router.post('/upload', upload.single('file'), async (req, res) => {
             amount: req.body.amount,
             equity: req.body.equity
         })
-        // res.send(response);
-        res.send('success');
+        // res.json({success: true, response});
+        res.json({success: true});
 
     } catch (error) {
         console.error(error.message);
@@ -47,7 +47,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 
 
 router.post('/like', fetchuser, async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    //res.setHeader('Access-Control-Allow-Origin', '*')
 
     try {
         const { filename } = req.body;
@@ -67,7 +67,7 @@ router.post('/like', fetchuser, async (req, res) => {
 })
 
 router.post('/dislike', fetchuser, async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    //res.setHeader('Access-Control-Allow-Origin', '*')
 
     try {
         const { filename } = req.body;
@@ -89,7 +89,7 @@ router.post('/dislike', fetchuser, async (req, res) => {
 
 
 router.post('/alreadyliked', fetchuser, async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    //res.setHeader('Access-Control-Allow-Origin', '*')
 
     try {
         const { filename } = req.body;
@@ -104,7 +104,7 @@ router.post('/alreadyliked', fetchuser, async (req, res) => {
 })
 
 router.post('/getlikes', async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    //res.setHeader('Access-Control-Allow-Origin', '*')
     try {
         const { filename } = req.body;
 
@@ -119,7 +119,7 @@ router.post('/getlikes', async (req, res) => {
 })
 
 router.get('/getvideos', async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    //res.setHeader('Access-Control-Allow-Origin', '*')
     try {
         let videos = await Video.find();
         res.json(videos);
@@ -129,7 +129,7 @@ router.get('/getvideos', async (req, res) => {
 })
 
 router.post('/getuservideos', async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    //res.setHeader('Access-Control-Allow-Origin', '*')
     try {
         let videos = await Video.find({ author: req.body.username });
         res.json(videos);
@@ -140,7 +140,7 @@ router.post('/getuservideos', async (req, res) => {
 })
 
 router.post('/placebid', fetchuser, async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    //res.setHeader('Access-Control-Allow-Origin', '*')
     try {
         const { filename, bidamount, bidequity } = req.body;
         const bidplacer = req.user.name;
@@ -161,7 +161,7 @@ router.post('/placebid', fetchuser, async (req, res) => {
 })
 
 router.post('/getbids', fetchuser, async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    //res.setHeader('Access-Control-Allow-Origin', '*')
     try {
         const video = await Video.findOne({ filename: req.body.filename });
         res.json({ bids: video.bids });
@@ -174,7 +174,7 @@ router.post('/getbids', fetchuser, async (req, res) => {
 })
 
 router.post('/alreadysaved', fetchuser, async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    //res.setHeader('Access-Control-Allow-Origin', '*')
     try {
         const isSaved = await User.findOne({ username: req.user.username })
         for (var i = 0; i < isSaved.saved.length; i++) {
@@ -191,7 +191,7 @@ router.post('/alreadysaved', fetchuser, async (req, res) => {
 })
 
 router.post('/save', fetchuser, async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    //res.setHeader('Access-Control-Allow-Origin', '*')
     try {
         const video = await Video.findOne({ filename: req.body.filename });
         await User.findOneAndUpdate({ username: req.user.username },
@@ -207,7 +207,7 @@ router.post('/save', fetchuser, async (req, res) => {
     }
 })
 router.post('/unsave', fetchuser, async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    //res.setHeader('Access-Control-Allow-Origin', '*')
 
     try {
         const video = await Video.findOne({ filename: req.body.filename });
@@ -227,7 +227,7 @@ router.post('/unsave', fetchuser, async (req, res) => {
 })
 
 router.get('/saved', fetchuser, async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    //res.setHeader('Access-Control-Allow-Origin', '*')
 
     try {
         const user = await User.findOne({ username: req.user.username })
@@ -239,7 +239,7 @@ router.get('/saved', fetchuser, async (req, res) => {
 })
 
 router.post('/comment', fetchuser, async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    //res.setHeader('Access-Control-Allow-Origin', '*')
 
     try {
         await Video.findOneAndUpdate({ filename: req.body.filename },
@@ -257,7 +257,7 @@ router.post('/comment', fetchuser, async (req, res) => {
 })
 
 router.post('/getcomments', fetchuser, async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    //res.setHeader('Access-Control-Allow-Origin', '*')
     try {
         const video = await Video.findOne({ filename: req.body.filename })
         res.json({ comments: video.comments });
@@ -268,7 +268,7 @@ router.post('/getcomments', fetchuser, async (req, res) => {
 })
 
 router.post('/getpostbyname', async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    //res.setHeader('Access-Control-Allow-Origin', '*')
     try {
         const video = await Video.findOne({ filename: req.body.filename })
         res.json(video);
