@@ -12,6 +12,21 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*')
     try {
         const Filename = `${Date.now()}-${req.file.originalname}`;
+        // const client = new S3Client({
+        //     credentials: {
+        //         accessKeyId: process.env.ACCESS_KEY,
+        //         secretAccessKey: process.env.SECRET_ACCESS_KEY
+        //     },
+        //     region: 'ap-south-1'
+        // });
+        
+        // const command = new PutObjectCommand({
+        //     Bucket: 'fundhunting-s3-bucket',
+        //     Key: Filename,
+        //     Body: req.file.buffer,
+        //     ContentType: 'video/mp4'
+        // });
+        // const response = await client.send(command);
 
         await User.updateOne({ username: req.body.username }, { $push: { "posts": Filename} });
         await Video.create({
@@ -20,22 +35,8 @@ router.post('/upload', upload.single('file'), async (req, res) => {
             amount: req.body.amount,
             equity: req.body.equity
         })
-        const client = new S3Client({
-            credentials: {
-                accessKeyId: process.env.ACCESS_KEY,
-                secretAccessKey: process.env.SECRET_ACCESS_KEY
-            },
-            region: 'ap-south-1'
-        });
-        
-        const command = new PutObjectCommand({
-            Bucket: 'fundhunting-s3-bucket',
-            Key: Filename,
-            Body: req.file.buffer,
-            ContentType: 'video/mp4'
-        });
-        const response = await client.send(command);
-        res.send(response);
+        // res.send(response);
+        res.send('success');
 
     } catch (error) {
         console.error(error.message);
